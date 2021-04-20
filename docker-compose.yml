@@ -1,0 +1,42 @@
+version: "3.3"
+networks:
+  shared-vpc:
+    driver: bridge
+services:
+  api:
+    build: .
+    environment:
+      CONFIG_SERVER: "etcd:2379"
+    ports:
+      - 8080:8080
+    depends_on:
+      - etcd
+      - postgres
+      - redis
+    networks:
+      - shared-vpc
+  etcd:
+    image: "bitnami/etcd:latest"
+    environment:
+      ALLOW_NONE_AUTHENTICATION: "yes"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+    ports:
+      - 2379:2379
+      - 2380:2380
+    networks:
+      - shared-vpc
+  postgres:
+    image: "postgres:9.6.21-alpine"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - 5432:5432
+    networks:
+      - shared-vpc
+  redis:
+    image: "redis:6.2.1-alpine"
+    ports:
+      - 6379:6379
+    networks:
+      - shared-vpc
