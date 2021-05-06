@@ -1,5 +1,7 @@
 package domain
 
+import "gorm.io/gorm"
+
 type Gender string
 
 const (
@@ -9,16 +11,26 @@ const (
 )
 
 type Location struct {
-	Longitude float64
-	Latitude  float64
-	Timezone  string
+	Longitude float32 `json:"longitude" validate:"required,longitude"`
+	Latitude  float32 `json:"latitude" validate:"required,latitude"`
+	Timezone  string  `json:"timezone"`
 }
 
 type Survivor struct {
-	Credentials  *Credential
+	gorm.Model
 	Name         string
 	Gender       Gender
 	LastLocation *Location `gorm:"embedded;embeddedPrefix:location_"`
 	Infected     bool
 	Deceased     bool
+
+	// Has one Credentials
+	Credentials *Credentials
+
+	// Has one Inventory
+	Inventory *Inventory `gorm:"foreignKey:OwnerID"`
+}
+
+type SurvivorRepository interface {
+	Save(surv *Survivor) error
 }

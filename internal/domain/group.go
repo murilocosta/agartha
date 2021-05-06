@@ -2,7 +2,7 @@ package domain
 
 type GroupMember struct {
 	Role   string
-	Member *Survivor
+	Member *Credentials
 }
 
 type Group struct {

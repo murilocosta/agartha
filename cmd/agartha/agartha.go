@@ -10,7 +10,11 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/murilocosta/agartha/internal/application"
+	"github.com/murilocosta/agartha/internal/core"
 	"github.com/murilocosta/agartha/internal/infrastructure"
+	"github.com/murilocosta/agartha/internal/infrastructure/persistence"
+	"github.com/murilocosta/agartha/internal/infrastructure/transport"
 )
 
 var dbCli *gorm.DB
@@ -56,8 +60,14 @@ func init() {
 }
 
 func main() {
+	sr := persistence.NewPostgresSurvivorRepository(dbCli)
+	ir := persistence.NewPostgresItemRepository(dbCli)
+	rsuc := application.NewRegisterSurvivor(sr, ir)
+	registerSurvivor := transport.NewRegisterSurvivorCtrl(rsuc)
+
 	// Create an instance of the application server
 	r := gin.Default()
 	s := infrastructure.NewServer(r)
+	s.Register(infrastructure.ServerPost, "/api/survivor", registerSurvivor)
 	s.Run()
 }
