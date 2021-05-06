@@ -16,7 +16,7 @@ services:
     networks:
       - shared-vpc
   etcd:
-    image: "bitnami/etcd:latest"
+    image: "bitnami/etcd:3.4.15"
     environment:
       ALLOW_NONE_AUTHENTICATION: "yes"
       ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
