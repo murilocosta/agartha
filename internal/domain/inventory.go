@@ -1,6 +1,14 @@
 package domain
 
+import "gorm.io/gorm"
+
 type Inventory struct {
-	Owner     *Survivor
+	gorm.Model
+
+	// Has many Resource
 	Resources []*Resource
+
+	// Belongs to Survivor
+	OwnerID uint
+	Owner   *Survivor `gorm:"foreignKey:OwnerID"`
 }
