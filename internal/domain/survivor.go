@@ -33,4 +33,7 @@ type Survivor struct {
 
 type SurvivorRepository interface {
 	Save(surv *Survivor) error
+	UpdateLastLocation(surv *Survivor, loc *Location) error
+
+	FindByID(survID uint) (*Survivor, error)
 }

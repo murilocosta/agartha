@@ -24,9 +24,11 @@ type ErrorDetail struct {
 	Reason string `json:"reason"`
 }
 
-func NewErrorMessage(errType string, detail string, status uint) *ErrorMessage {
+type ErrorTypeCode string
+
+func NewErrorMessage(errType ErrorTypeCode, detail string, status uint) *ErrorMessage {
 	return &ErrorMessage{
-		ErrorType: errType,
+		ErrorType: string(errType),
 		Detail:    detail,
 		Status:    status,
 	}

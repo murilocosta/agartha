@@ -32,6 +32,10 @@ func SurvivorWriteErrorBuilder(field string, errorType string) *core.ErrorDetail
 }
 
 func ConvertToSurvivorRead(surv *domain.Survivor) *SurvivorRead {
+	if surv == nil {
+		return nil
+	}
+
 	return &SurvivorRead{
 		Id:       surv.ID,
 		Name:     surv.Name,
