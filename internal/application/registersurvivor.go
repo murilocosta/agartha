@@ -1,21 +1,15 @@
 package application
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/go-playground/validator/v10"
+
+	"github.com/murilocosta/agartha/internal/application/dto"
+	"github.com/murilocosta/agartha/internal/core"
 	"github.com/murilocosta/agartha/internal/domain"
 )
-
-type SurvivorWrite struct {
-	Name      string              `json:"name" validate:"required"`
-	Gender    domain.Gender       `json:"gender" validate:"required"`
-	Position  *domain.Location    `json:"position" validate:"required"`
-	Inventory []*SurvivorResource `json:"inventory" validate:"required,dive,required"`
-}
-
-type SurvivorResource struct {
-	ItemID   uint `json:"item_id" validate:"required"`
-	Quantity uint `json:"quantity" validate:"required,gte=0"`
-}
 
 type RegisterSurvivor struct {
 	survRepo domain.SurvivorRepository
@@ -26,23 +20,26 @@ func NewRegisterSurvivor(survRepo domain.SurvivorRepository, itemRepo domain.Ite
 	return &RegisterSurvivor{survRepo, itemRepo}
 }
 
-func (ucase *RegisterSurvivor) Invoke(survWrite *SurvivorWrite) error {
+func (ucase *RegisterSurvivor) Invoke(survWrite *dto.SurvivorWrite) (*dto.SurvivorRead, error) {
 	validate := validator.New()
 
 	if err := validate.Struct(survWrite); err != nil {
-		return err
+		msg := core.NewErrorMessage("AGV-001", "register survivor failed", http.StatusBadRequest)
+		msg.AddErrorDetail(err, dto.SurvivorWriteErrorBuilder)
+		return nil, msg
 	}
 
 	surv, err := ucase.buildSurvivor(survWrite)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ucase.survRepo.Save(surv)
-	return nil
+
+	return dto.ConvertToSurvivorRead(surv), err
 }
 
-func (ucase *RegisterSurvivor) buildSurvivor(sw *SurvivorWrite) (*domain.Survivor, error) {
+func (ucase *RegisterSurvivor) buildSurvivor(sw *dto.SurvivorWrite) (*domain.Survivor, error) {
 	var resources []*domain.Resource
 	for _, invItem := range sw.Inventory {
 		resource, err := ucase.buildItem(invItem)
@@ -66,14 +63,19 @@ func (ucase *RegisterSurvivor) buildSurvivor(sw *SurvivorWrite) (*domain.Survivo
 	return surv, nil
 }
 
-func (ucase *RegisterSurvivor) buildItem(survRes *SurvivorResource) (*domain.Resource, error) {
+func (ucase *RegisterSurvivor) buildItem(survRes *dto.SurvivorResource) (*domain.Resource, error) {
 	item, err := ucase.itemRepo.FindByID(survRes.ItemID)
+
 	if err != nil {
-		return nil, err
+		detail := fmt.Sprintf("could not find item with ID %d", survRes.ItemID)
+		msg := core.NewErrorMessage("AGB-001", detail, http.StatusBadRequest)
+		return nil, msg
 	}
+
 	res := &domain.Resource{
 		Item:     item,
 		Quantity: survRes.Quantity,
 	}
+
 	return res, nil
 }
