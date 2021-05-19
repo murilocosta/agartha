@@ -24,6 +24,15 @@ type SurvivorResource struct {
 	Quantity uint `json:"quantity" validate:"required,gte=0"`
 }
 
+type SurvivorLastPosition struct {
+	SurvivorID uint
+	Location   *domain.Location
+}
+
+func NewSurvivorLastPosition(survID uint, loc *domain.Location) *SurvivorLastPosition {
+	return &SurvivorLastPosition{SurvivorID: survID, Location: loc}
+}
+
 func SurvivorWriteErrorBuilder(field string, errorType string) *core.ErrorDetail {
 	return &core.ErrorDetail{
 		Name:   field,

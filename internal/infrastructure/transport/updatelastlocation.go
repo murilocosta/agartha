@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/murilocosta/agartha/internal/application"
+	"github.com/murilocosta/agartha/internal/application/dto"
 	"github.com/murilocosta/agartha/internal/core"
 	"github.com/murilocosta/agartha/internal/domain"
 )
@@ -35,7 +36,8 @@ func (ctrl *updateLastLocationCtrl) Execute(c *gin.Context) {
 		return
 	}
 
-	response, err := ctrl.ucase.Invoke(params.SurvivorID, &location)
+	lastLoc := dto.NewSurvivorLastPosition(params.SurvivorID, &location)
+	response, err := ctrl.ucase.Invoke(lastLoc)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, core.GetErrorMessage(err))
 		return
