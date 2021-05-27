@@ -65,9 +65,13 @@ func main() {
 	rsuc := application.NewRegisterSurvivor(sr, ir)
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(rsuc)
 
+	ulluc := application.NewUpdateLastLocation(sr)
+	updateLastLocation := transport.NewUpdateLastLocationCtrl(ulluc)
+
 	// Create an instance of the application server
 	r := gin.Default()
 	s := infrastructure.NewServer(r)
 	s.Register(infrastructure.ServerPost, "/api/survivor", registerSurvivor)
+	s.Register(infrastructure.ServerPost, "/api/survivor/:survivorId", updateLastLocation)
 	s.Run()
 }

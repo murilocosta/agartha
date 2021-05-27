@@ -24,7 +24,7 @@ func (ucase *RegisterSurvivor) Invoke(survWrite *dto.SurvivorWrite) (*dto.Surviv
 	validate := validator.New()
 
 	if err := validate.Struct(survWrite); err != nil {
-		msg := core.NewErrorMessage("AGV-001", "register survivor failed", http.StatusBadRequest)
+		msg := core.NewErrorMessage(dto.RegisterSurvivorFailed, "register survivor failed", http.StatusBadRequest)
 		msg.AddErrorDetail(err, dto.SurvivorWriteErrorBuilder)
 		return nil, msg
 	}
@@ -68,7 +68,7 @@ func (ucase *RegisterSurvivor) buildItem(survRes *dto.SurvivorResource) (*domain
 
 	if err != nil {
 		detail := fmt.Sprintf("could not find item with ID %d", survRes.ItemID)
-		msg := core.NewErrorMessage("AGB-001", detail, http.StatusBadRequest)
+		msg := core.NewErrorMessage(dto.ItemNotFound, detail, http.StatusBadRequest)
 		return nil, msg
 	}
 
