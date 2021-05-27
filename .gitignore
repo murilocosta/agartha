@@ -16,3 +16,6 @@ vendor/
 
 # Log directories
 logs/
+
+# VSCode project configuration
+.vscode/
