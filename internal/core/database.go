@@ -5,6 +5,13 @@ import (
 	"text/template"
 )
 
+type DatabaseSortType string
+
+const (
+	Ascendent  DatabaseSortType = "asc"
+	Descendent DatabaseSortType = "desc"
+)
+
 func ParseConnectionURL(cfg *Config) (string, error) {
 	f := "host={{.Host}} port={{.Port}} user={{.Username}} password={{.Password}} dbname={{.DbName}} sslmode=disable"
 	tmpl, err := template.New("database").Parse(f)

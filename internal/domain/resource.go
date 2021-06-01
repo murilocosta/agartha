@@ -12,4 +12,5 @@ type Resource struct {
 
 	// Belongs to Inventory
 	InventoryID uint
+	Inventory   *Inventory
 }

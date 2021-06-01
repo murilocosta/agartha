@@ -1,6 +1,10 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+
+	"github.com/murilocosta/agartha/internal/core"
+)
 
 type Gender string
 
@@ -9,6 +13,22 @@ const (
 	Female Gender = "Female"
 	Other  Gender = "Other"
 )
+
+type SurvivorFilter struct {
+	Name      string                `form:"name"`
+	Sort      core.DatabaseSortType `form:"sort"`
+	Page      int                   `form:"page"`
+	PageItems int
+}
+
+func NewSurvivorFilter(name string, sort string, page int) *SurvivorFilter {
+	return &SurvivorFilter{
+		Name:      name,
+		Sort:      core.DatabaseSortType(sort),
+		Page:      page,
+		PageItems: 15,
+	}
+}
 
 type Location struct {
 	Longitude float32 `json:"longitude" validate:"required,longitude"`
@@ -36,4 +56,5 @@ type SurvivorRepository interface {
 	UpdateLastLocation(surv *Survivor, loc *Location) error
 
 	FindByID(survID uint) (*Survivor, error)
+	FindAll(filter *SurvivorFilter) ([]*Survivor, error)
 }

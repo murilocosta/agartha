@@ -37,6 +37,7 @@ CREATE TABLE credentials (
 CREATE TABLE inventories (
     id SERIAL,
     owner_id INTEGER,
+    "disabled" BOOLEAN DEFAULT FALSE,
 
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
@@ -119,6 +120,7 @@ CREATE TABLE infection_reports (
     id SERIAL,
     reported_id INTEGER,
     reportee_id INTEGER,
+    annotation TEXT,
 
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
