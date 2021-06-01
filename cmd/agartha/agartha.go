@@ -14,6 +14,7 @@ import (
 
 	"github.com/murilocosta/agartha/internal/application"
 	"github.com/murilocosta/agartha/internal/core"
+	"github.com/murilocosta/agartha/internal/domain"
 	"github.com/murilocosta/agartha/internal/infrastructure"
 	"github.com/murilocosta/agartha/internal/infrastructure/persistence"
 	"github.com/murilocosta/agartha/internal/infrastructure/transport"
@@ -67,23 +68,30 @@ func init() {
 }
 
 func main() {
-	sr := persistence.NewPostgresSurvivorRepository(dbCli)
-	ir := persistence.NewPostgresItemRepository(dbCli)
+	survRepo := persistence.NewPostgresSurvivorRepository(dbCli)
+	itemRepo := persistence.NewPostgresItemRepository(dbCli)
+	infectRepo := persistence.NewPostgresInfectionRepository(dbCli)
+	invRepo := persistence.NewPostgresInventoryRepository(dbCli)
 
-	rsuc := application.NewRegisterSurvivor(sr, ir)
+	rsuc := application.NewRegisterSurvivor(survRepo, itemRepo)
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(rsuc)
 
-	ulluc := application.NewUpdateLastLocation(sr)
+	ulluc := application.NewUpdateLastLocation(survRepo)
 	updateLastLocation := transport.NewUpdateLastLocationCtrl(ulluc)
 
-	fsluc := application.NewFetchSurvivorList(sr)
+	fsluc := application.NewFetchSurvivorList(survRepo)
 	fetchSurvivorList := transport.NewFetchSurvivorListCtrl(fsluc)
+
+	invServ := domain.NewInventoryService(invRepo)
+	fisuc := application.NewFlagInfectedSurvivor(survRepo, infectRepo, invServ)
+	flagInfectedSurvivor := transport.NewFlagInfectedSurvivorCtrl(fisuc)
 
 	// Create an instance of the application server
 	r := gin.Default()
 	s := infrastructure.NewServer(r)
-	s.Register(infrastructure.ServerPost, "/api/survivor", registerSurvivor)
-	s.Register(infrastructure.ServerGet, "/api/survivor", fetchSurvivorList)
-	s.Register(infrastructure.ServerPost, "/api/survivor/:survivorId", updateLastLocation)
+	s.Register(infrastructure.ServerPost, "/api/survivors", registerSurvivor)
+	s.Register(infrastructure.ServerGet, "/api/survivors", fetchSurvivorList)
+	s.Register(infrastructure.ServerPost, "/api/survivors/report-infection", flagInfectedSurvivor)
+	s.Register(infrastructure.ServerPost, "/api/survivors/:survivorId", updateLastLocation)
 	s.Run()
 }

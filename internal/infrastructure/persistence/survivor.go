@@ -19,9 +19,8 @@ func NewPostgresSurvivorRepository(db *gorm.DB) *postgresSurvivorRepository {
 }
 
 func (repo *postgresSurvivorRepository) Save(surv *domain.Survivor) error {
-	repo.db.Create(surv)
-
 	tx := repo.db.Save(surv)
+
 	if tx.Error != nil {
 		return tx.Error
 	}
