@@ -27,7 +27,7 @@ func (ucase *FlagInfectedSurvivor) Invoke(infection *dto.ReportedInfection) erro
 
 	if err := validate.Struct(infection); err != nil {
 		msg := core.NewErrorMessage(dto.ReportInfectedSurvivorFailed, "report infected survivor failed", http.StatusBadRequest)
-		msg.AddErrorDetail(err, dto.SurvivorWriteErrorBuilder)
+		msg.AddErrorDetail(err, dto.ErrorDetailBuilder)
 		return msg
 	}
 

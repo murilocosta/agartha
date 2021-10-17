@@ -25,7 +25,7 @@ func (ucase *RegisterSurvivor) Invoke(survWrite *dto.SurvivorWrite) (*dto.Surviv
 
 	if err := validate.Struct(survWrite); err != nil {
 		msg := core.NewErrorMessage(dto.RegisterSurvivorFailed, "register survivor failed", http.StatusBadRequest)
-		msg.AddErrorDetail(err, dto.SurvivorWriteErrorBuilder)
+		msg.AddErrorDetail(err, dto.ErrorDetailBuilder)
 		return nil, msg
 	}
 

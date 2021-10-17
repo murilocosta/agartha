@@ -31,7 +31,7 @@ func (u *UpdateLastLocation) Invoke(lastLoc *dto.SurvivorLastPosition) (*dto.Sur
 
 	if err := validate.Struct(lastLoc.Location); err != nil {
 		msg := core.NewErrorMessage(dto.UpdateLastLocationFailed, "update last location failed", http.StatusBadRequest)
-		msg.AddErrorDetail(err, dto.SurvivorWriteErrorBuilder)
+		msg.AddErrorDetail(err, dto.ErrorDetailBuilder)
 		return nil, msg
 	}
 

@@ -180,6 +180,7 @@ CREATE TABLE trades (
     sender_id INTEGER,
     receiver_id INTEGER,
     "status" TRADE_STATUS,
+    annotation TEXT,
 
     created_at TIMESTAMP,
     updated_at TIMESTAMP,

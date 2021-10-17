@@ -1,11 +1,23 @@
 package domain
 
+import "gorm.io/gorm"
+
 type GroupMember struct {
-	Role   string
-	Member *Credentials
+	gorm.Model
+	Role string
+
+	// Has one Credentials
+	MemberID uint
+	Member   *Credentials `gorm:"foreignKey:MemberID"`
+
+	// Belongs to Group
+	GroupID uint
+	Group   *Group
 }
 
 type Group struct {
-	Name    string
+	gorm.Model
+	Name string
+
 	Members []*GroupMember
 }

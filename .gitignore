@@ -19,3 +19,6 @@ logs/
 
 # VSCode project configuration
 .vscode/
+
+# GoLand project configuration
+.idea/

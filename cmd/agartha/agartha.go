@@ -72,19 +72,25 @@ func main() {
 	itemRepo := persistence.NewPostgresItemRepository(dbCli)
 	infectRepo := persistence.NewPostgresInfectionRepository(dbCli)
 	invRepo := persistence.NewPostgresInventoryRepository(dbCli)
-
-	rsuc := application.NewRegisterSurvivor(survRepo, itemRepo)
-	registerSurvivor := transport.NewRegisterSurvivorCtrl(rsuc)
-
-	ulluc := application.NewUpdateLastLocation(survRepo)
-	updateLastLocation := transport.NewUpdateLastLocationCtrl(ulluc)
-
-	fsluc := application.NewFetchSurvivorList(survRepo)
-	fetchSurvivorList := transport.NewFetchSurvivorListCtrl(fsluc)
+	tradeRepo := persistence.NewPostgresTradeRepository(dbCli)
 
 	invServ := domain.NewInventoryService(invRepo)
-	fisuc := application.NewFlagInfectedSurvivor(survRepo, infectRepo, invServ)
-	flagInfectedSurvivor := transport.NewFlagInfectedSurvivorCtrl(fisuc)
+
+	regSurUC := application.NewRegisterSurvivor(survRepo, itemRepo)
+	updLocUC := application.NewUpdateLastLocation(survRepo)
+	ftcSurvUC := application.NewFetchSurvivorList(survRepo)
+	flgInfUC := application.NewFlagInfectedSurvivor(survRepo, infectRepo, invServ)
+	trdUC := application.NewTradeItems(survRepo, tradeRepo)
+	trdAccUC := application.NewTradeItemsAccept(tradeRepo)
+	trdRejUC := application.NewTradeItemsReject(tradeRepo)
+
+	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
+	updateLastLocation := transport.NewUpdateLastLocationCtrl(updLocUC)
+	fetchSurvivorList := transport.NewFetchSurvivorListCtrl(ftcSurvUC)
+	flagInfectedSurvivor := transport.NewFlagInfectedSurvivorCtrl(flgInfUC)
+	tradeItems := transport.NewTradeItemsCtrl(trdUC)
+	tradeItemsAccept := transport.NewTradeItemsAcceptCtrl(trdAccUC)
+	tradeItemsReject := transport.NewTradeItemsRejectCtrl(trdRejUC)
 
 	// Create an instance of the application server
 	r := gin.Default()
@@ -93,5 +99,8 @@ func main() {
 	s.Register(infrastructure.ServerGet, "/api/survivors", fetchSurvivorList)
 	s.Register(infrastructure.ServerPost, "/api/survivors/report-infection", flagInfectedSurvivor)
 	s.Register(infrastructure.ServerPost, "/api/survivors/:survivorId", updateLastLocation)
+	s.Register(infrastructure.ServerPost, "/api/trades", tradeItems)
+	s.Register(infrastructure.ServerPost, "/api/trades/:tradeId/accept", tradeItemsAccept)
+	s.Register(infrastructure.ServerPost, "/api/trades/:tradeId/reject", tradeItemsReject)
 	s.Run()
 }

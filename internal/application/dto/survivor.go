@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"github.com/murilocosta/agartha/internal/core"
 	"github.com/murilocosta/agartha/internal/domain"
 )
 
@@ -31,13 +30,6 @@ type SurvivorLastPosition struct {
 
 func NewSurvivorLastPosition(survID uint, loc *domain.Location) *SurvivorLastPosition {
 	return &SurvivorLastPosition{SurvivorID: survID, Location: loc}
-}
-
-func SurvivorWriteErrorBuilder(field string, errorType string) *core.ErrorDetail {
-	return &core.ErrorDetail{
-		Name:   field,
-		Reason: errorType,
-	}
 }
 
 func ConvertToSurvivorRead(surv *domain.Survivor) *SurvivorRead {
