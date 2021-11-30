@@ -2,9 +2,11 @@ package core
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
 )
 
 type SetupErr error
@@ -47,6 +49,10 @@ func (m *ErrorMessage) Error() string {
 }
 
 func GetErrorMessage(err error) *ErrorMessage {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return GetDatabaseError(err)
+	}
+
 	switch err.(type) {
 	case *ErrorMessage:
 		return GetValidationError(err)
@@ -67,5 +73,13 @@ func GetSystemError(err error) *ErrorMessage {
 		ErrorType: "AGS-000",
 		Detail:    err.Error(),
 		Status:    http.StatusInternalServerError,
+	}
+}
+
+func GetDatabaseError(err error) *ErrorMessage {
+	return &ErrorMessage{
+		ErrorType: "AGS-001",
+		Detail:    "Access to this resource is denied",
+		Status:    http.StatusForbidden,
 	}
 }
