@@ -27,6 +27,25 @@ type TradeRead struct {
 	Status  domain.TradeStatus `json:"status"`
 }
 
+type TradeHistorySurvivorRead struct {
+	SurvivorID uint   `json:"id"`
+	Name       string `json:"name"`
+}
+
+type TradeHistoryItemRead struct {
+	ItemName     string `json:"itemName"`
+	ItemQuantity uint   `json:"itemQuantity"`
+}
+
+type TradeHistoryRead struct {
+	TradeID       uint                      `json:"id"`
+	Status        domain.TradeStatus        `json:"status"`
+	Sender        *TradeHistorySurvivorRead `json:"sender"`
+	Receiver      *TradeHistorySurvivorRead `json:"receiver"`
+	SenderItems   []*TradeHistoryItemRead   `json:"senderItems"`
+	ReceiverItems []*TradeHistoryItemRead   `json:"receiverItems"`
+}
+
 func ConvertToTradeRead(trade *domain.Trade) *TradeRead {
 	if trade == nil {
 		return nil

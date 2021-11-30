@@ -1,7 +1,10 @@
 package persistence
 
 import (
+	"database/sql"
+
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/murilocosta/agartha/internal/domain"
 )
@@ -95,4 +98,22 @@ func (repo *postgresTradeRepository) FindResourceByID(resID uint) (*domain.Resou
 	}
 
 	return &res, nil
+}
+
+func (repo *postgresTradeRepository) FindTradeHistoryBySurvivor(survivorID uint) ([]*domain.Trade, error) {
+	var ids []uint
+	repo.db.Model(&domain.TradeInventory{}).Select("id").Where("survivor_id = ?", survivorID).Find(&ids)
+
+	tx := repo.db.Preload("Sender.Survivor")
+	tx.Preload("Receiver.Survivor")
+	tx.Preload("Sender.TradeResources.Item")
+	tx.Preload("Receiver.TradeResources.Item")
+	tx.Preload(clause.Associations)
+
+	var history []*domain.Trade
+	rs := tx.Where("sender_id IN @ids OR receiver_id IN @ids", sql.Named("ids", ids)).Find(&history)
+	if rs.Error != nil {
+		return nil, rs.Error
+	}
+	return history, nil
 }

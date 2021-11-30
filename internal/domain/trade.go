@@ -57,4 +57,5 @@ type TradeRepository interface {
 	UpdateResourceItem(resID uint, quantity uint) error
 	FindByID(tradeID uint) (*Trade, error)
 	FindResourceByID(resID uint) (*Resource, error)
+	FindTradeHistoryBySurvivor(survivorID uint) ([]*Trade, error)
 }
