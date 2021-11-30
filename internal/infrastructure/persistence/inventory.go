@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/murilocosta/agartha/internal/domain"
 )
@@ -37,14 +38,10 @@ func (repo *postgresInventoryRepository) SaveTransfer(from *domain.Inventory, to
 func (repo *postgresInventoryRepository) FindByOwnerID(ownerID uint) (*domain.Inventory, error) {
 	var inv domain.Inventory
 
-	err := repo.db.Where("owner_id = ?", ownerID).First(&inv).Error
-	if err != nil {
-		return nil, err
-	}
-
-	err = repo.db.Model(&inv).Association("Resources").Find(&inv.Resources)
-	if err != nil {
-		return nil, err
+	tx := repo.db.Preload("Resources.Item").Preload(clause.Associations)
+	rs := tx.Where("owner_id = ?", ownerID).First(&inv)
+	if rs.Error != nil {
+		return nil, rs.Error
 	}
 
 	return &inv, nil

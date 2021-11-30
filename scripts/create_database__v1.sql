@@ -50,11 +50,14 @@ CREATE TABLE inventories (
             ON UPDATE CASCADE
 );
 
+CREATE TYPE ITEM_RARITY AS ENUM ('Common', 'Uncommon', 'Rare', 'Epic');
+
 CREATE TABLE items (
     id SERIAL,
     "name" VARCHAR(256),
     icon VARCHAR(256),
     price INTEGER,
+    rarity ITEM_RARITY,
     
     created_at TIMESTAMP,
     updated_at TIMESTAMP,

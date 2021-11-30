@@ -33,8 +33,8 @@ type TradeHistorySurvivorRead struct {
 }
 
 type TradeHistoryItemRead struct {
-	ItemName     string `json:"itemName"`
-	ItemQuantity uint   `json:"itemQuantity"`
+	ItemName     string `json:"item_name"`
+	ItemQuantity uint   `json:"item_quantity"`
 }
 
 type TradeHistoryRead struct {
@@ -42,8 +42,8 @@ type TradeHistoryRead struct {
 	Status        domain.TradeStatus        `json:"status"`
 	Sender        *TradeHistorySurvivorRead `json:"sender"`
 	Receiver      *TradeHistorySurvivorRead `json:"receiver"`
-	SenderItems   []*TradeHistoryItemRead   `json:"senderItems"`
-	ReceiverItems []*TradeHistoryItemRead   `json:"receiverItems"`
+	SenderItems   []*TradeHistoryItemRead   `json:"sender_items"`
+	ReceiverItems []*TradeHistoryItemRead   `json:"receiver_items"`
 }
 
 func ConvertToTradeRead(trade *domain.Trade) *TradeRead {
