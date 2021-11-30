@@ -84,6 +84,7 @@ func main() {
 	trdUC := application.NewTradeItems(survRepo, tradeRepo)
 	trdAccUC := application.NewTradeItemsAccept(tradeRepo)
 	trdRejUC := application.NewTradeItemsReject(tradeRepo)
+	trdHstUC := application.NewFetchSurvivorTradeHistory(tradeRepo, itemRepo)
 
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
 	updateLastLocation := transport.NewUpdateLastLocationCtrl(updLocUC)
@@ -93,6 +94,7 @@ func main() {
 	tradeItems := transport.NewTradeItemsCtrl(trdUC)
 	tradeItemsAccept := transport.NewTradeItemsAcceptCtrl(trdAccUC)
 	tradeItemsReject := transport.NewTradeItemsRejectCtrl(trdRejUC)
+	tradeItemsHistory := transport.NewFetchSurvivorTradeHistoryCtrl(trdHstUC)
 
 	// Create an instance of the application server
 	r := gin.Default()
@@ -100,6 +102,7 @@ func main() {
 	s.Register(infrastructure.ServerPost, "/api/survivors", registerSurvivor)
 	s.Register(infrastructure.ServerPost, "/api/survivors/:survivorId", updateLastLocation)
 	s.Register(infrastructure.ServerGet, "/api/survivors/:survivorId", fetchSurvivorDetails)
+  s.Register(infrastructure.ServerGet, "/api/survivors/:survivorId/trades", tradeItemsHistory)
 	s.Register(infrastructure.ServerGet, "/api/survivors", fetchSurvivorList)
 	s.Register(infrastructure.ServerPost, "/api/survivors/report-infection", flagInfectedSurvivor)
 	s.Register(infrastructure.ServerPost, "/api/trades", tradeItems)
