@@ -9,4 +9,10 @@ type Credentials struct {
 
 	// Belongs to Survivor
 	SurvivorID uint
+	Survivor   *Survivor `gorm:"foreignKey:SurvivorID"`
+}
+
+type CredentialsRepository interface {
+	Save(cred *Credentials) error
+	FindByUsername(username string) (*Credentials, error)
 }

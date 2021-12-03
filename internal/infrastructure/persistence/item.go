@@ -10,7 +10,7 @@ type postgresItemRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresItemRepository(db *gorm.DB) *postgresItemRepository {
+func NewPostgresItemRepository(db *gorm.DB) domain.ItemRepository {
 	return &postgresItemRepository{db}
 }
 

@@ -2,6 +2,8 @@ package domain
 
 import (
 	"gorm.io/gorm"
+
+	"github.com/murilocosta/agartha/internal/core"
 )
 
 type TradeStatus string
@@ -11,6 +13,13 @@ const (
 	TradeAccepted TradeStatus = "Accepted"
 	TradeRejected TradeStatus = "Rejected"
 )
+
+type TradeFilter struct {
+	Name      string                `form:"name"`
+	Sort      core.DatabaseSortType `form:"sort"`
+	Page      int                   `form:"page"`
+	PageItems int                   `form:"page_items"`
+}
 
 type Trade struct {
 	gorm.Model

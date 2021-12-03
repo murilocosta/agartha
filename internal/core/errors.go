@@ -17,7 +17,7 @@ type ErrorBuilder func(string, string) *ErrorDetail
 type ErrorMessage struct {
 	ErrorType string         `json:"errorType"`
 	Detail    string         `json:"detail"`
-	Status    uint           `json:"status"`
+	Status    int            `json:"status"`
 	Errors    []*ErrorDetail `json:"errors,omitempty"`
 }
 
@@ -28,7 +28,7 @@ type ErrorDetail struct {
 
 type ErrorTypeCode string
 
-func NewErrorMessage(errType ErrorTypeCode, detail string, status uint) *ErrorMessage {
+func NewErrorMessage(errType ErrorTypeCode, detail string, status int) *ErrorMessage {
 	return &ErrorMessage{
 		ErrorType: string(errType),
 		Detail:    detail,
@@ -78,8 +78,16 @@ func GetSystemError(err error) *ErrorMessage {
 
 func GetDatabaseError(err error) *ErrorMessage {
 	return &ErrorMessage{
-		ErrorType: "AGS-001",
+		ErrorType: "AGA-001",
 		Detail:    "Access to this resource is denied",
 		Status:    http.StatusForbidden,
+	}
+}
+
+func GetAuthError(message string, status int) *ErrorMessage {
+	return &ErrorMessage{
+		ErrorType: "AGA-002",
+		Detail:    UpperCaseFirst(message),
+		Status:    status,
 	}
 }

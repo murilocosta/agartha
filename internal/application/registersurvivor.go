@@ -1,7 +1,6 @@
 package application
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -29,7 +28,8 @@ func (ucase *RegisterSurvivor) Invoke(survWrite *dto.SurvivorWrite) (*dto.Surviv
 		return nil, msg
 	}
 
-	surv, err := ucase.buildSurvivor(survWrite)
+	survBuilder := dto.NewSurvivorBuilder(ucase.itemRepo)
+	surv, err := survBuilder.BuildSurvivor(survWrite)
 	if err != nil {
 		return nil, err
 	}
@@ -37,45 +37,4 @@ func (ucase *RegisterSurvivor) Invoke(survWrite *dto.SurvivorWrite) (*dto.Surviv
 	ucase.survRepo.Save(surv)
 
 	return dto.ConvertToSurvivorRead(surv), err
-}
-
-func (ucase *RegisterSurvivor) buildSurvivor(sw *dto.SurvivorWrite) (*domain.Survivor, error) {
-	var resources []*domain.Resource
-	for _, invItem := range sw.Inventory {
-		resource, err := ucase.buildItem(invItem)
-		if err != nil {
-			return nil, err
-		}
-		resources = append(resources, resource)
-	}
-
-	surv := &domain.Survivor{
-		Name:         sw.Name,
-		Gender:       sw.Gender,
-		LastLocation: sw.Position,
-		Infected:     false,
-		Deceased:     false,
-		Inventory: &domain.Inventory{
-			Resources: resources,
-		},
-	}
-
-	return surv, nil
-}
-
-func (ucase *RegisterSurvivor) buildItem(survRes *dto.SurvivorResource) (*domain.Resource, error) {
-	item, err := ucase.itemRepo.FindByID(survRes.ItemID)
-
-	if err != nil {
-		detail := fmt.Sprintf("could not find item with ID %d", survRes.ItemID)
-		msg := core.NewErrorMessage(dto.ItemNotFound, detail, http.StatusBadRequest)
-		return nil, msg
-	}
-
-	res := &domain.Resource{
-		Item:     item,
-		Quantity: survRes.Quantity,
-	}
-
-	return res, nil
 }

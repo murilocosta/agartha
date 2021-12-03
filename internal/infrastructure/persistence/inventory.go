@@ -11,7 +11,7 @@ type postgresInventoryRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresInventoryRepository(db *gorm.DB) *postgresInventoryRepository {
+func NewPostgresInventoryRepository(db *gorm.DB) domain.InventoryRepository {
 	return &postgresInventoryRepository{db}
 }
 

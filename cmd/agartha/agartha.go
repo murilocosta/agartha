@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/murilocosta/agartha/internal/application"
+	"github.com/murilocosta/agartha/internal/application/auth"
 	"github.com/murilocosta/agartha/internal/core"
 	"github.com/murilocosta/agartha/internal/domain"
 	"github.com/murilocosta/agartha/internal/infrastructure"
@@ -27,9 +28,9 @@ var (
 
 var dbCli *gorm.DB
 var redisCli *redis.Client
+var config core.Config
 
 func init() {
-	var config core.Config
 	var err error
 
 	// Get configuration server address
@@ -68,14 +69,18 @@ func init() {
 }
 
 func main() {
+	// Initialize database repositories
 	survRepo := persistence.NewPostgresSurvivorRepository(dbCli)
 	itemRepo := persistence.NewPostgresItemRepository(dbCli)
 	infectRepo := persistence.NewPostgresInfectionRepository(dbCli)
 	invRepo := persistence.NewPostgresInventoryRepository(dbCli)
 	tradeRepo := persistence.NewPostgresTradeRepository(dbCli)
+	credRepo := persistence.NewPostgresCredentialsRepository(dbCli)
 
+	// Initialize domain services
 	invServ := domain.NewInventoryService(invRepo)
 
+	// Initialize application use cases
 	regSurUC := application.NewRegisterSurvivor(survRepo, itemRepo)
 	updLocUC := application.NewUpdateLastLocation(survRepo)
 	ftcSurvDtlUC := application.NewFetchSurvivorDetails(survRepo)
@@ -86,7 +91,10 @@ func main() {
 	trdAccUC := application.NewTradeItemsAccept(tradeRepo)
 	trdRejUC := application.NewTradeItemsReject(tradeRepo)
 	trdHstUC := application.NewFetchSurvivorTradeHistory(tradeRepo, itemRepo)
+	survSgn := auth.NewSignUpSurvivor(credRepo, itemRepo)
+	survLgn := auth.NewLoginSurvivor(credRepo)
 
+	// Initialize request handlers
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
 	updateLastLocation := transport.NewUpdateLastLocationCtrl(updLocUC)
 	fetchSurvivorDetails := transport.NewFetchSurvivorDetailsCtrl(ftcSurvDtlUC)
@@ -98,18 +106,47 @@ func main() {
 	tradeItemsReject := transport.NewTradeItemsRejectCtrl(trdRejUC)
 	tradeItemsHistory := transport.NewFetchSurvivorTradeHistoryCtrl(trdHstUC)
 
+	// Initialize auth handlers
+	survivorSignUp := transport.NewSurvivorSignUpCtrl(survSgn)
+	survivorLogin := transport.NewSurvivorLoginCtrl(survLgn)
+	checkSurvivorPermission := transport.NewCheckSurvivorPermissionCtrl()
+
+	// Register the controllers
+	handlersConfig := infrastructure.NewServerHandlersConfig()
+	handlersConfig.Post("/api/register", survivorSignUp)
+	handlersConfig.PostProtected("/api/survivors", registerSurvivor)
+	handlersConfig.PutProtected("/api/survivors/:survivorId", updateLastLocation)
+	handlersConfig.GetProtected("/api/survivors/:survivorId", fetchSurvivorDetails)
+	handlersConfig.GetProtected("/api/survivors/:survivorId/trades", tradeItemsHistory)
+	handlersConfig.GetProtected("/api/survivors/:survivorId/items", fetchSurvivorInventory)
+	handlersConfig.GetProtected("/api/survivors", fetchSurvivorList)
+	handlersConfig.PostProtected("/api/survivors/report-infection", flagInfectedSurvivor)
+	handlersConfig.PostProtected("/api/trades", tradeItems)
+	handlersConfig.PostProtected("/api/trades/:tradeId/accept", tradeItemsAccept)
+	handlersConfig.PostProtected("/api/trades/:tradeId/reject", tradeItemsReject)
+
+	// Create the authentication middleware
+	middleware := infrastructure.NewAuthMiddleware(
+		config.Auth.Realm,
+		config.Auth.SecretKey,
+		config.Auth.TokenTimeout,
+		config.Auth.RefreshTimeout,
+	)
+	authHandler, err := middleware.Init(
+		survivorLogin.HandlerFunc,
+		checkSurvivorPermission.HandlerFunc,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Create an instance of the application server
 	r := gin.Default()
 	s := infrastructure.NewServer(r)
-	s.Register(infrastructure.ServerPost, "/api/survivors", registerSurvivor)
-	s.Register(infrastructure.ServerPost, "/api/survivors/:survivorId", updateLastLocation)
-	s.Register(infrastructure.ServerGet, "/api/survivors/:survivorId", fetchSurvivorDetails)
-	s.Register(infrastructure.ServerGet, "/api/survivors/:survivorId/trades", tradeItemsHistory)
-	s.Register(infrastructure.ServerGet, "/api/survivors/:survivorId/items", fetchSurvivorInventory)
-	s.Register(infrastructure.ServerGet, "/api/survivors", fetchSurvivorList)
-	s.Register(infrastructure.ServerPost, "/api/survivors/report-infection", flagInfectedSurvivor)
-	s.Register(infrastructure.ServerPost, "/api/trades", tradeItems)
-	s.Register(infrastructure.ServerPost, "/api/trades/:tradeId/accept", tradeItemsAccept)
-	s.Register(infrastructure.ServerPost, "/api/trades/:tradeId/reject", tradeItemsReject)
+	s.ApplyCORS()
+
+	// Register the authentication routes
+	s.RegisterAuthHandlers(authHandler)
+	s.RegisterCtrlHandlers(handlersConfig)
 	s.Run()
 }

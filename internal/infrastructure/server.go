@@ -1,42 +1,82 @@
 package infrastructure
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
+	"time"
 
-	"github.com/murilocosta/agartha/internal/infrastructure/transport"
+	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
-type ServerMethod uint
+type ServerMethod string
+
+func (m *ServerMethod) ToString() string {
+	return string(*m)
+}
 
 const (
-	ServerGet ServerMethod = iota
-	ServerPost
-	ServerPut
-	ServerPatch
-	ServerDelete
+	ServerGet     ServerMethod = http.MethodGet
+	ServerPost    ServerMethod = http.MethodPost
+	ServerPut     ServerMethod = http.MethodPut
+	ServerPatch   ServerMethod = http.MethodPatch
+	ServerDelete  ServerMethod = http.MethodDelete
+	ServerOptions ServerMethod = http.MethodOptions
 )
 
 type appServer struct {
 	router *gin.Engine
+	auth   *jwt.GinJWTMiddleware
 }
 
 func NewServer(router *gin.Engine) *appServer {
-	return &appServer{router}
+	return &appServer{router: router, auth: nil}
 }
 
-func (s *appServer) Register(method ServerMethod, path string, ctrl transport.Ctrl) {
-	switch method {
-	case ServerGet:
-		s.router.GET(path, ctrl.Execute)
-	case ServerPost:
-		s.router.POST(path, ctrl.Execute)
-	case ServerPut:
-		s.router.PUT(path, ctrl.Execute)
-	case ServerPatch:
-		s.router.PATCH(path, ctrl.Execute)
-	case ServerDelete:
-		s.router.DELETE(path, ctrl.Execute)
+func (s *appServer) ApplyCORS() {
+	allowedMethods := []string{
+		string(ServerGet),
+		string(ServerPost),
+		string(ServerPut),
+		string(ServerPatch),
+		string(ServerDelete),
+		string(ServerOptions),
 	}
+
+	s.router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     allowedMethods,
+		AllowHeaders:     []string{"Origin", "Authentication"},
+		ExposeHeaders:    []string{"Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+}
+
+func (s *appServer) RegisterAuthHandlers(auth *jwt.GinJWTMiddleware) {
+	s.auth = auth
+	s.router.POST("/api/login", s.auth.LoginHandler)
+	s.router.GET("/api/refresh-token", s.auth.RefreshHandler)
+}
+
+func (s *appServer) RegisterCtrlHandlers(config *serverHandlersConfig) {
+	for _, handler := range config.Handlers {
+		s.registerImpl(handler)
+	}
+}
+
+func (s *appServer) registerImpl(handler *ctrlHandler) {
+	var handlerChain []gin.HandlerFunc
+	if handler.Secured && s.auth != nil {
+		handlerChain = append(handlerChain, s.auth.MiddlewareFunc())
+	}
+	handlerChain = append(handlerChain, handler.Ctrl.Execute)
+
+	s.router.Handle(
+		handler.HTTPMethod.ToString(),
+		handler.URLPath,
+		handlerChain...,
+	)
 }
 
 func (s *appServer) Run() {

@@ -9,3 +9,8 @@ cache:
     host: localhost:6379
     password: ""
     database-selection: 1
+auth:
+    realm: "Agartha"
+    secret-key: "3duwL5neRU0-fQT1sEU8aRyg6kNtCOPdfjvI1947AF17ktheuu5vDn-ztVFbSuj7VGX5qCkBVS"
+    token-timeout: 3600
+    refresh-timeout: 3600

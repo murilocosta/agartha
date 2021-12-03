@@ -10,7 +10,7 @@ type postgresInfectionRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresInfectionRepository(db *gorm.DB) *postgresInfectionRepository {
+func NewPostgresInfectionRepository(db *gorm.DB) domain.InfectionRepository {
 	return &postgresInfectionRepository{db}
 }
 
