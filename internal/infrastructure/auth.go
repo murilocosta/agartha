@@ -27,10 +27,8 @@ func NewAuthMiddleware(realm string, jwtSecretKey string, tokenTimeout int32, to
 }
 
 func (mid *authMiddleware) Init(
-	identityHandler transport.AuthIdentityFunc,
-	authenticator transport.AuthCheckFunc,
-	authorizator transport.AuthAllowFunc,
-	unauthorized transport.AuthMessageFormatter,
+	authenticator transport.AuthAuthenticateFunc,
+	authorizator transport.AuthAuthorizeFunc,
 ) (*jwt.GinJWTMiddleware, error) {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           mid.realm,
@@ -38,10 +36,13 @@ func (mid *authMiddleware) Init(
 		Timeout:         mid.tokenTimeout,
 		MaxRefresh:      mid.tokenRefreshTimeout,
 		IdentityKey:     auth.AuthIdentityKey,
-		IdentityHandler: identityHandler,
+		IdentityHandler: transport.CreateTokenIdentity,
+		PayloadFunc:     transport.CreateTokenPayload,
 		Authenticator:   authenticator,
 		Authorizator:    authorizator,
-		Unauthorized:    unauthorized,
+		LoginResponse:   transport.FormatTokenResponse,
+		RefreshResponse: transport.FormatTokenResponse,
+		Unauthorized:    transport.FormatUnauthorizedResponse,
 		TimeFunc:        time.Now,
 	})
 

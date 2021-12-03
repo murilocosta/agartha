@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/murilocosta/agartha/internal/application"
+	"github.com/murilocosta/agartha/internal/application/auth"
 	"github.com/murilocosta/agartha/internal/core"
 	"github.com/murilocosta/agartha/internal/domain"
 	"github.com/murilocosta/agartha/internal/infrastructure"
@@ -74,6 +75,7 @@ func main() {
 	infectRepo := persistence.NewPostgresInfectionRepository(dbCli)
 	invRepo := persistence.NewPostgresInventoryRepository(dbCli)
 	tradeRepo := persistence.NewPostgresTradeRepository(dbCli)
+	credRepo := persistence.NewPostgresCredentialsRepository(dbCli)
 
 	// Initialize domain services
 	invServ := domain.NewInventoryService(invRepo)
@@ -89,6 +91,7 @@ func main() {
 	trdAccUC := application.NewTradeItemsAccept(tradeRepo)
 	trdRejUC := application.NewTradeItemsReject(tradeRepo)
 	trdHstUC := application.NewFetchSurvivorTradeHistory(tradeRepo, itemRepo)
+	survSgn := auth.NewSignUpSurvivor(credRepo, itemRepo)
 
 	// Initialize request handlers
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
@@ -103,23 +106,22 @@ func main() {
 	tradeItemsHistory := transport.NewFetchSurvivorTradeHistoryCtrl(trdHstUC)
 
 	// Initialize auth handlers
-	signupSurvivor := transport.NewSurvivorSignUpCtrl()
-	survivorLogin := transport.NewSurvivorLoginCtrl()
+	survivorSignUp := transport.NewSurvivorSignUpCtrl(survSgn)
 	checkSurvivorPermission := transport.NewCheckSurvivorPermissionCtrl()
 
 	// Register the controllers
 	handlersConfig := infrastructure.NewServerHandlersConfig()
-	handlersConfig.AddHandler(infrastructure.ServerPost, "/api/register", signupSurvivor)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerPost, "/api/survivors", registerSurvivor)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerPost, "/api/survivors/:survivorId", updateLastLocation)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerGet, "/api/survivors/:survivorId", fetchSurvivorDetails)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerGet, "/api/survivors/:survivorId/trades", tradeItemsHistory)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerGet, "/api/survivors/:survivorId/items", fetchSurvivorInventory)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerGet, "/api/survivors", fetchSurvivorList)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerPost, "/api/survivors/report-infection", flagInfectedSurvivor)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerPost, "/api/trades", tradeItems)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerPost, "/api/trades/:tradeId/accept", tradeItemsAccept)
-	handlersConfig.AddSecuredHandler(infrastructure.ServerPost, "/api/trades/:tradeId/reject", tradeItemsReject)
+	handlersConfig.Post("/api/register", survivorSignUp)
+	handlersConfig.PostProtected("/api/survivors", registerSurvivor)
+	handlersConfig.PutProtected("/api/survivors/:survivorId", updateLastLocation)
+	handlersConfig.GetProtected("/api/survivors/:survivorId", fetchSurvivorDetails)
+	handlersConfig.GetProtected("/api/survivors/:survivorId/trades", tradeItemsHistory)
+	handlersConfig.GetProtected("/api/survivors/:survivorId/items", fetchSurvivorInventory)
+	handlersConfig.GetProtected("/api/survivors", fetchSurvivorList)
+	handlersConfig.PostProtected("/api/survivors/report-infection", flagInfectedSurvivor)
+	handlersConfig.PostProtected("/api/trades", tradeItems)
+	handlersConfig.PostProtected("/api/trades/:tradeId/accept", tradeItemsAccept)
+	handlersConfig.PostProtected("/api/trades/:tradeId/reject", tradeItemsReject)
 
 	// Create the authentication middleware
 	middleware := infrastructure.NewAuthMiddleware(
@@ -129,10 +131,8 @@ func main() {
 		config.Auth.RefreshTimeout,
 	)
 	authHandler, err := middleware.Init(
-		transport.CreateIdentity,
 		survivorLogin.HandlerFunc,
 		checkSurvivorPermission.HandlerFunc,
-		transport.FormatUnauthorizedResponse,
 	)
 	if err != nil {
 		log.Fatal(err)

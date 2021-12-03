@@ -10,5 +10,5 @@ func NewCheckSurvivorPermissionCtrl() *checkSurvivorPermissionCtrl {
 }
 
 func (ctrl *checkSurvivorPermissionCtrl) HandlerFunc(data interface{}, c *gin.Context) bool {
-	return false
+	return true
 }

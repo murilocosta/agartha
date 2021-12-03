@@ -11,3 +11,7 @@ type Credentials struct {
 	SurvivorID uint
 	Survivor   *Survivor `gorm:"foreignKey:SurvivorID"`
 }
+
+type CredentialsRepository interface {
+	Save(cred *Credentials) error
+}

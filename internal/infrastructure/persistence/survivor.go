@@ -14,7 +14,7 @@ type postgresSurvivorRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresSurvivorRepository(db *gorm.DB) *postgresSurvivorRepository {
+func NewPostgresSurvivorRepository(db *gorm.DB) domain.SurvivorRepository {
 	return &postgresSurvivorRepository{db}
 }
 

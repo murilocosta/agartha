@@ -1,24 +1,27 @@
 package infrastructure
 
 import (
+	"net/http"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-
-	"github.com/murilocosta/agartha/internal/infrastructure/transport"
 )
 
 type ServerMethod string
 
+func (m *ServerMethod) ToString() string {
+	return string(*m)
+}
+
 const (
-	ServerGet     ServerMethod = "GET"
-	ServerPost    ServerMethod = "POST"
-	ServerPut     ServerMethod = "PUT"
-	ServerPatch   ServerMethod = "PATCH"
-	ServerDelete  ServerMethod = "DELETE"
-	ServerOptions ServerMethod = "OPTIONS"
+	ServerGet     ServerMethod = http.MethodGet
+	ServerPost    ServerMethod = http.MethodPost
+	ServerPut     ServerMethod = http.MethodPut
+	ServerPatch   ServerMethod = http.MethodPatch
+	ServerDelete  ServerMethod = http.MethodDelete
+	ServerOptions ServerMethod = http.MethodOptions
 )
 
 type appServer struct {
@@ -58,30 +61,22 @@ func (s *appServer) RegisterAuthHandlers(auth *jwt.GinJWTMiddleware) {
 
 func (s *appServer) RegisterCtrlHandlers(config *serverHandlersConfig) {
 	for _, handler := range config.Handlers {
-		if handler.Secured && s.auth != nil {
-			s.router.Use(s.auth.MiddlewareFunc())
-			{
-				s.registerImpl(handler.HTTPMethod, handler.URLPath, handler.Ctrl)
-			}
-		} else {
-			s.registerImpl(handler.HTTPMethod, handler.URLPath, handler.Ctrl)
-		}
+		s.registerImpl(handler)
 	}
 }
 
-func (s *appServer) registerImpl(method ServerMethod, path string, ctrl transport.Ctrl) {
-	switch method {
-	case ServerGet:
-		s.router.GET(path, ctrl.Execute)
-	case ServerPost:
-		s.router.POST(path, ctrl.Execute)
-	case ServerPut:
-		s.router.PUT(path, ctrl.Execute)
-	case ServerPatch:
-		s.router.PATCH(path, ctrl.Execute)
-	case ServerDelete:
-		s.router.DELETE(path, ctrl.Execute)
+func (s *appServer) registerImpl(handler *ctrlHandler) {
+	var handlerChain []gin.HandlerFunc
+	if handler.Secured && s.auth != nil {
+		handlerChain = append(handlerChain, s.auth.MiddlewareFunc())
 	}
+	handlerChain = append(handlerChain, handler.Ctrl.Execute)
+
+	s.router.Handle(
+		handler.HTTPMethod.ToString(),
+		handler.URLPath,
+		handlerChain...,
+	)
 }
 
 func (s *appServer) Run() {
