@@ -9,4 +9,5 @@ type Credentials struct {
 
 	// Belongs to Survivor
 	SurvivorID uint
+	Survivor   *Survivor `gorm:"foreignKey:SurvivorID"`
 }

@@ -18,7 +18,7 @@ type SurvivorFilter struct {
 	Name      string                `form:"name"`
 	Sort      core.DatabaseSortType `form:"sort"`
 	Page      int                   `form:"page"`
-	PageItems int
+	PageItems int                   `form:"page_items"`
 }
 
 func NewSurvivorFilter(name string, sort string, page int) *SurvivorFilter {

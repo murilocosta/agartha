@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Database DatabaseConfig `json:"database"`
 	Cache    CacheConfig    `json:"cache"`
+	Auth     AuthConfig     `json:"auth"`
 }
 
 type DatabaseConfig struct {
@@ -24,6 +25,13 @@ type CacheConfig struct {
 	Host              string `json:"host"`
 	Password          string `json:"password"`
 	DatabaseSelection int    `json:"database-selection"`
+}
+
+type AuthConfig struct {
+	Realm          string `json:"realm"`
+	SecretKey      string `json:"secret-key"`
+	TokenTimeout   int32  `json:"token-timeout"`
+	RefreshTimeout int32  `json:"refresh-timeout"`
 }
 
 func LoadConfig(yamlFilePath string, cfg *Config) error {
