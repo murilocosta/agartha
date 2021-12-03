@@ -22,3 +22,19 @@ func (repo *postgresCredentialsRepository) Save(cred *domain.Credentials) error 
 
 	return nil
 }
+
+func (repo *postgresCredentialsRepository) FindByUsername(username string) (*domain.Credentials, error) {
+	var cred domain.Credentials
+
+	err := repo.db.Where("username = ?", username).First(&cred).Error
+	if err != nil {
+		return nil, err
+	}
+
+	err = repo.db.Model(&cred).Association("Survivor").Find(&cred.Survivor)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cred, nil
+}

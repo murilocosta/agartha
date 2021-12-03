@@ -92,6 +92,7 @@ func main() {
 	trdRejUC := application.NewTradeItemsReject(tradeRepo)
 	trdHstUC := application.NewFetchSurvivorTradeHistory(tradeRepo, itemRepo)
 	survSgn := auth.NewSignUpSurvivor(credRepo, itemRepo)
+	survLgn := auth.NewLoginSurvivor(credRepo)
 
 	// Initialize request handlers
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
@@ -107,6 +108,7 @@ func main() {
 
 	// Initialize auth handlers
 	survivorSignUp := transport.NewSurvivorSignUpCtrl(survSgn)
+	survivorLogin := transport.NewSurvivorLoginCtrl(survLgn)
 	checkSurvivorPermission := transport.NewCheckSurvivorPermissionCtrl()
 
 	// Register the controllers

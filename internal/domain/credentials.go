@@ -14,4 +14,5 @@ type Credentials struct {
 
 type CredentialsRepository interface {
 	Save(cred *Credentials) error
+	FindByUsername(username string) (*Credentials, error)
 }
