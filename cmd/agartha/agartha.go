@@ -86,6 +86,7 @@ func main() {
 	ftcSurvDtlUC := application.NewFetchSurvivorDetails(survRepo)
 	ftcSurvLstUC := application.NewFetchSurvivorList(survRepo)
 	ftcSurvInvUC := application.NewFetchSurvivorInventory(invRepo)
+	ftcAvlbItms := application.NewFetchAvailableItems(itemRepo)
 	flgInfUC := application.NewFlagInfectedSurvivor(survRepo, infectRepo, invServ)
 	trdUC := application.NewTradeItems(survRepo, tradeRepo)
 	trdAccUC := application.NewTradeItemsAccept(tradeRepo)
@@ -100,6 +101,7 @@ func main() {
 	fetchSurvivorDetails := transport.NewFetchSurvivorDetailsCtrl(ftcSurvDtlUC)
 	fetchSurvivorList := transport.NewFetchSurvivorListCtrl(ftcSurvLstUC)
 	fetchSurvivorInventory := transport.NewFetchSurvivorInventoryCtrl(ftcSurvInvUC)
+	fetchAvailableItems := transport.NewFetchAvailableItemsCtrl(ftcAvlbItms)
 	flagInfectedSurvivor := transport.NewFlagInfectedSurvivorCtrl(flgInfUC)
 	tradeItems := transport.NewTradeItemsCtrl(trdUC)
 	tradeItemsAccept := transport.NewTradeItemsAcceptCtrl(trdAccUC)
@@ -114,6 +116,7 @@ func main() {
 	// Register the controllers
 	handlersConfig := infrastructure.NewServerHandlersConfig()
 	handlersConfig.Post("/api/register", survivorSignUp)
+	handlersConfig.Get("/api/items", fetchAvailableItems)
 	handlersConfig.PostProtected("/api/survivors", registerSurvivor)
 	handlersConfig.PutProtected("/api/survivors/:survivorId", updateLastLocation)
 	handlersConfig.GetProtected("/api/survivors/:survivorId", fetchSurvivorDetails)

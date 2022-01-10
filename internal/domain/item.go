@@ -1,6 +1,10 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+
+	"github.com/murilocosta/agartha/internal/core"
+)
 
 type ItemRarity string
 
@@ -10,6 +14,22 @@ const (
 	Rare     ItemRarity = "Rare"
 	Epic     ItemRarity = "Epic"
 )
+
+type ItemFilter struct {
+	Name      string                `form:"name"`
+	Sort      core.DatabaseSortType `form:"sort"`
+	Page      int                   `form:"page"`
+	PageItems int                   `form:"page_items"`
+}
+
+func NewItemFilter(name string, sort string, page int) *ItemFilter {
+	return &ItemFilter{
+		Name:      name,
+		Sort:      core.DatabaseSortType(sort),
+		Page:      page,
+		PageItems: 5,
+	}
+}
 
 type Item struct {
 	gorm.Model
@@ -21,4 +41,5 @@ type Item struct {
 
 type ItemRepository interface {
 	FindByID(itemID uint) (*Item, error)
+	FindAll(filter *ItemFilter) ([]*Item, error)
 }

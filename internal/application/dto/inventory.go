@@ -45,3 +45,13 @@ func ConvertToInventoryRead(inv *domain.Inventory) *InventoryRead {
 		Items:      invItems,
 	}
 }
+
+func ConvertToItemRead(item *domain.Item) *ItemRead {
+	return &ItemRead{
+		ID:     item.ID,
+		Name:   item.Name,
+		Icon:   item.Icon,
+		Price:  item.Price,
+		Rarity: item.Rarity,
+	}
+}
