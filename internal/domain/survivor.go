@@ -40,6 +40,7 @@ type Survivor struct {
 	gorm.Model
 	Name         string
 	Gender       Gender
+	Age          uint
 	LastLocation *Location `gorm:"embedded;embeddedPrefix:location_"`
 	Infected     bool
 	Deceased     bool
