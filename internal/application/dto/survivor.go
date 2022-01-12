@@ -11,12 +11,14 @@ import (
 type SurvivorRead struct {
 	Id       uint             `json:"id"`
 	Name     string           `json:"name"`
+	Age      uint             `json:"age"`
 	Gender   domain.Gender    `json:"gender"`
 	Position *domain.Location `json:"position"`
 }
 
 type SurvivorWrite struct {
 	Name      string              `json:"name" validate:"required,min=2"`
+	Age       uint                `json:"age" validate:"required,gte=0"`
 	Gender    domain.Gender       `json:"gender" validate:"required"`
 	Position  *domain.Location    `json:"position" validate:"required"`
 	Inventory []*SurvivorResource `json:"inventory" validate:"required,min=1,dive,required"`
@@ -44,6 +46,7 @@ func ConvertToSurvivorRead(surv *domain.Survivor) *SurvivorRead {
 	return &SurvivorRead{
 		Id:       surv.ID,
 		Name:     surv.Name,
+		Age:      surv.Age,
 		Gender:   surv.Gender,
 		Position: surv.LastLocation,
 	}
@@ -69,6 +72,7 @@ func (builder *survivorBuilder) BuildSurvivor(sw *SurvivorWrite) (*domain.Surviv
 
 	surv := &domain.Survivor{
 		Name:         sw.Name,
+		Age:          sw.Age,
 		Gender:       sw.Gender,
 		LastLocation: sw.Position,
 		Infected:     false,

@@ -3,6 +3,7 @@ CREATE TYPE GENDER AS ENUM ('Male', 'Female', 'Other');
 CREATE TABLE survivors (
     id SERIAL,
     "name" VARCHAR(256),
+    age INTEGER,
     gender GENDER,
     location_latitude NUMERIC(12, 10),
     location_longitude NUMERIC(12, 10),
