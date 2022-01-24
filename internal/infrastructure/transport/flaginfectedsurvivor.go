@@ -26,7 +26,7 @@ func (ctrl *flagInfectedSurvivorCtrl) Execute(c *gin.Context) {
 	}
 
 	if err := ctrl.ucase.Invoke(&infection); err != nil {
-		c.JSON(http.StatusInternalServerError, core.GetErrorMessage(err))
+		c.JSON(http.StatusBadRequest, core.GetErrorMessage(err))
 		return
 	}
 

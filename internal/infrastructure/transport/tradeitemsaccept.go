@@ -24,7 +24,7 @@ func NewTradeItemsAcceptCtrl(ucase *application.TradeItemsAccept) *tradeItemsAcc
 func (ctrl *tradeItemsAcceptCtrl) Execute(c *gin.Context) {
 	var params BindTradeID
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(http.StatusBadRequest, core.GetSystemError(err))
+		c.JSON(http.StatusInternalServerError, core.GetSystemError(err))
 		return
 	}
 
