@@ -43,12 +43,19 @@ func (s *appServer) ApplyCORS() {
 		string(ServerOptions),
 	}
 
+	allowedHeaders := []string{
+		"Origin",
+		"Authorization",
+		"Authentication",
+		"Content-Type",
+	}
+
 	s.router.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     allowedMethods,
-		AllowHeaders:     []string{"Origin", "Authentication"},
-		ExposeHeaders:    []string{"Content-Type"},
+		AllowHeaders:     allowedHeaders,
 		AllowCredentials: true,
+		ExposeHeaders:    []string{"Content-Type"},
 		MaxAge:           12 * time.Hour,
 	}))
 }

@@ -1,2 +1,2 @@
 # Agartha API
-API to solve the zombie social network challenge
+Application Programming Interface to solve the Zombie Survival Social Network (ZSSN) challenge
