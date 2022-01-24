@@ -21,12 +21,12 @@ func NewTradeItemsRejectCtrl(ucase *application.TradeItemsReject) *tradeItemsRej
 func (ctrl *tradeItemsRejectCtrl) Execute(c *gin.Context) {
 	var reject dto.TradeRejectWrite
 	if err := c.ShouldBindUri(&reject); err != nil {
-		c.JSON(http.StatusBadRequest, core.GetSystemError(err))
+		c.JSON(http.StatusInternalServerError, core.GetSystemError(err))
 		return
 	}
 
 	if err := c.ShouldBindJSON(&reject); err != nil {
-		c.JSON(http.StatusBadRequest, core.GetSystemError(err))
+		c.JSON(http.StatusInternalServerError, core.GetSystemError(err))
 	}
 
 	response, err := ctrl.ucase.Invoke(&reject)

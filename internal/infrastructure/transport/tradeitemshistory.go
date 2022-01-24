@@ -20,7 +20,7 @@ func NewFetchSurvivorTradeHistoryCtrl(ucase *application.FetchSurvivorTradeHisto
 func (ctrl *fetchSurvivorTradeHistoryCtrl) Execute(c *gin.Context) {
 	var params BindSurvivorID
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(http.StatusBadRequest, core.GetSystemError(err))
+		c.JSON(http.StatusInternalServerError, core.GetSystemError(err))
 		return
 	}
 
