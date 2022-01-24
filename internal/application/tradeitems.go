@@ -50,7 +50,7 @@ func (ucase *TradeItems) buildTrade(tw *dto.TradeWrite) (*domain.Trade, error) {
 		return nil, err
 	}
 
-	if senderTradePoints != receiverTradePoints {
+	if senderTradePoints < receiverTradePoints {
 		msg := core.NewErrorMessage(
 			dto.TradeResourcePriceNotEquivalent,
 			"the amount of items offered or requested are not equivalent",

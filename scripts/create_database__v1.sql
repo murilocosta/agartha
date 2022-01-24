@@ -168,8 +168,8 @@ CREATE TABLE trade_resources (
 
     PRIMARY KEY (id),
     CONSTRAINT fk_trade_resource_item 
-        FOREIGN KEY (item_id) 
-        REFERENCES items (id) 
+        FOREIGN KEY (id) 
+        REFERENCES resources (id) 
             ON UPDATE CASCADE,
     CONSTRAINT fk_trade_resource_inventory 
         FOREIGN KEY (inventory_id) 
