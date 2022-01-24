@@ -98,6 +98,7 @@ func main() {
 	// Initialize request handlers
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
 	updateLastLocation := transport.NewUpdateLastLocationCtrl(updLocUC)
+	fetchSurvivorProfile := transport.NewFetchSurvivorProfileCtrl(ftcSurvDtlUC)
 	fetchSurvivorDetails := transport.NewFetchSurvivorDetailsCtrl(ftcSurvDtlUC)
 	fetchSurvivorList := transport.NewFetchSurvivorListCtrl(ftcSurvLstUC)
 	fetchSurvivorInventory := transport.NewFetchSurvivorInventoryCtrl(ftcSurvInvUC)
@@ -119,6 +120,7 @@ func main() {
 	handlersConfig.Get("/api/items", fetchAvailableItems)
 	handlersConfig.PostProtected("/api/survivors", registerSurvivor)
 	handlersConfig.PutProtected("/api/survivors/:survivorId", updateLastLocation)
+	handlersConfig.GetProtected("/api/survivors/profile", fetchSurvivorProfile)
 	handlersConfig.GetProtected("/api/survivors/:survivorId", fetchSurvivorDetails)
 	handlersConfig.GetProtected("/api/survivors/:survivorId/trades", tradeItemsHistory)
 	handlersConfig.GetProtected("/api/survivors/:survivorId/items", fetchSurvivorInventory)
