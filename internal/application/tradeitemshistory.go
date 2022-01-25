@@ -58,7 +58,7 @@ func (ucase *FetchSurvivorTradeHistory) convertToTradeHistoryRead(trade *domain.
 		return nil, err
 	}
 
-	receiverItems, err := ucase.convertToTradeHistoryItemRead(trade.Sender.TradeResources)
+	receiverItems, err := ucase.convertToTradeHistoryItemRead(trade.Receiver.TradeResources)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (ucase *FetchSurvivorTradeHistory) convertToTradeHistoryRead(trade *domain.
 func (ucase *FetchSurvivorTradeHistory) convertToTradeHistoryItemRead(resources []*domain.TradeResource) ([]*dto.TradeHistoryItemRead, error) {
 	var senderItems []*dto.TradeHistoryItemRead
 	for _, res := range resources {
-		itemDetail, err := ucase.itemRepo.FindByID(res.ItemID)
+		tradeRes, err := ucase.tradeRepo.FindResourceByID(res.ItemID)
 		if err != nil {
 			detail := fmt.Sprintf("could not find item with ID %d", res.ItemID)
 			msg := core.NewErrorMessage(dto.ItemNotFound, detail, http.StatusInternalServerError)
@@ -85,7 +85,8 @@ func (ucase *FetchSurvivorTradeHistory) convertToTradeHistoryItemRead(resources 
 		}
 
 		senderItems = append(senderItems, &dto.TradeHistoryItemRead{
-			ItemName:     itemDetail.Name,
+			ItemIcon:     tradeRes.Item.Icon,
+			ItemName:     tradeRes.Item.Name,
 			ItemQuantity: res.Quantity,
 		})
 	}
