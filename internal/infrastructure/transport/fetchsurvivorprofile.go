@@ -1,13 +1,11 @@
 package transport
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/murilocosta/agartha/internal/application"
-	"github.com/murilocosta/agartha/internal/application/auth"
 	"github.com/murilocosta/agartha/internal/core"
 )
 
@@ -20,17 +18,9 @@ func NewFetchSurvivorProfileCtrl(ucase *application.FetchSurvivorDetails) *fetch
 }
 
 func (ctrl *fetchSurvivorProfileCtrl) Execute(c *gin.Context) {
-	survivorKey, ok := c.Keys["survivorID"]
-	if !ok {
-		errMsg := errors.New("malformed authentication token")
-		c.JSON(http.StatusInternalServerError, core.GetSystemError(errMsg))
-		return
-	}
-
-	claims, ok := survivorKey.(*auth.SurvivorIdentity)
-	if !ok {
-		errMsg := errors.New("corrupted authentication token")
-		c.JSON(http.StatusInternalServerError, core.GetSystemError(errMsg))
+	claims, err := GetSurvivorIdentity(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, core.GetSystemError(err))
 		return
 	}
 

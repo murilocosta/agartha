@@ -9,9 +9,10 @@ import (
 type TradeStatus string
 
 const (
-	TradeOpen     TradeStatus = "Open"
-	TradeAccepted TradeStatus = "Accepted"
-	TradeRejected TradeStatus = "Rejected"
+	TradeOpen      TradeStatus = "Open"
+	TradeAccepted  TradeStatus = "Accepted"
+	TradeRejected  TradeStatus = "Rejected"
+	TradeCancelled TradeStatus = "Cancelled"
 )
 
 type TradeFilter struct {
