@@ -20,6 +20,7 @@ type DatabaseConfig struct {
 	Host     string `yaml:"host" envconfig:"DATABASE_HOST"`
 	Port     string `yaml:"port" envconfig:"DATABASE_PORT"`
 	DbName   string `yaml:"dbname" envconfig:"DATABASE_NAME"`
+	SslMode  string `yaml:"ssl-mode"`
 }
 
 type CacheConfig struct {
