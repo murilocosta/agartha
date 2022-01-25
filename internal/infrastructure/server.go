@@ -34,6 +34,12 @@ func NewServer(router *gin.Engine) *appServer {
 }
 
 func (s *appServer) ApplyCORS() {
+	allowedOrigins := []string{
+		"http://localhost:3000",
+		"https://murilocosta.github.io",
+		"https://agartha.stoplight.io",
+	}
+
 	allowedMethods := []string{
 		string(ServerGet),
 		string(ServerPost),
@@ -51,7 +57,7 @@ func (s *appServer) ApplyCORS() {
 	}
 
 	s.router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOrigins:     allowedOrigins,
 		AllowMethods:     allowedMethods,
 		AllowHeaders:     allowedHeaders,
 		AllowCredentials: true,

@@ -37,8 +37,15 @@ func init() {
 	if configServerURL, ok := os.LookupEnv("CONFIG_SERVER"); ok {
 		err = infrastructure.LoadConfigurationFromServer(configServerURL, &config)
 	} else {
-		err = core.LoadConfig(basepath+"/../../configs/config.yml", &config)
+		configFilePath := basepath + "/../../configs/config.yml"
+
+		if len(os.Args) > 2 {
+			configFilePath = os.Args[2]
+		}
+
+		err = core.LoadConfig(configFilePath, &config)
 	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,17 +61,19 @@ func init() {
 		log.Fatal(err)
 	}
 
-	// Create an instance of Redis client
-	redisCli = redis.NewClient(&redis.Options{
-		Addr:     config.Cache.Host,
-		Password: config.Cache.Password,
-		DB:       config.Cache.DatabaseSelection,
-	})
+	// If cache is enabled, create an instance of Redis client
+	if config.Cache.Enabled {
+		redisCli = redis.NewClient(&redis.Options{
+			Addr:     config.Cache.Host,
+			Password: config.Cache.Password,
+			DB:       config.Cache.DatabaseSelection,
+		})
 
-	// Try to stablish a connection with Redis server
-	_, err = redisCli.Ping(context.Background()).Result()
-	if err != nil {
-		log.Fatal(err)
+		// Try to stablish a connection with Redis server
+		_, err = redisCli.Ping(context.Background()).Result()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

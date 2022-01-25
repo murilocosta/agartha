@@ -13,7 +13,7 @@ const (
 )
 
 func ParseConnectionURL(cfg *Config) (string, error) {
-	f := "host={{.Host}} port={{.Port}} user={{.Username}} password={{.Password}} dbname={{.DbName}} sslmode=disable"
+	f := "host={{.Host}} port={{.Port}} user={{.Username}} password={{.Password}} dbname={{.DbName}} sslmode={{.SslMode}}"
 	tmpl, err := template.New("database").Parse(f)
 	if err != nil {
 		return "", err
@@ -23,7 +23,7 @@ func ParseConnectionURL(cfg *Config) (string, error) {
 }
 
 func ParseMigrationConnectionURL(cfg *Config) (string, error) {
-	f := "{{.Driver}}://{{.Username}}:{{.Password}}@{{.Host}}:{{.Port}}/{{.DbName}}?sslmode=disable"
+	f := "{{.Driver}}://{{.Username}}:{{.Password}}@{{.Host}}:{{.Port}}/{{.DbName}}?sslmode={{.SslMode}}"
 	tmpl, err := template.New("migration").Parse(f)
 	if err != nil {
 		return "", err
