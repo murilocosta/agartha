@@ -6,6 +6,7 @@ database:
     port: 5432
     dbname: agartha
 cache:
+    enabled: false
     host: localhost:6379
     password: ""
     database-selection: 1

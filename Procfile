@@ -1,0 +1,1 @@
+web: bin/agartha -config /app/config/config.yml

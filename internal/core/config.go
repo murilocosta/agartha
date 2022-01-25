@@ -3,39 +3,47 @@ package core
 import (
 	"os"
 
+	"github.com/kelseyhightower/envconfig"
 	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	Database DatabaseConfig `json:"database"`
-	Cache    CacheConfig    `json:"cache"`
-	Auth     AuthConfig     `json:"auth"`
+	Database DatabaseConfig `yaml:"database"`
+	Cache    CacheConfig    `yaml:"cache"`
+	Auth     AuthConfig     `yaml:"auth"`
 }
 
 type DatabaseConfig struct {
-	Driver   string `json:"driver"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Host     string `json:"host"`
-	Port     string `json:"port"`
-	DbName   string `json:"dbname"`
+	Driver   string `yaml:"driver"`
+	Username string `yaml:"username" envconfig:"DATABASE_USERNAME"`
+	Password string `yaml:"password" envconfig:"DATABASE_PASSWORD"`
+	Host     string `yaml:"host" envconfig:"DATABASE_HOST"`
+	Port     string `yaml:"port" envconfig:"DATABASE_PORT"`
+	DbName   string `yaml:"dbname" envconfig:"DATABASE_NAME"`
 }
 
 type CacheConfig struct {
-	Host              string `json:"host"`
-	Password          string `json:"password"`
-	DatabaseSelection int    `json:"database-selection"`
+	Enabled           bool   `yaml:"enabled"`
+	Host              string `yaml:"host"`
+	Password          string `yaml:"password"`
+	DatabaseSelection int    `yaml:"database-selection"`
 }
 
 type AuthConfig struct {
-	Realm          string `json:"realm"`
-	SecretKey      string `json:"secret-key"`
-	TokenTimeout   int32  `json:"token-timeout"`
-	RefreshTimeout int32  `json:"refresh-timeout"`
+	Realm          string `yaml:"realm"`
+	SecretKey      string `yaml:"secret-key"`
+	TokenTimeout   int32  `yaml:"token-timeout"`
+	RefreshTimeout int32  `yaml:"refresh-timeout"`
 }
 
 func LoadConfig(yamlFilePath string, cfg *Config) error {
 	err := readYamlFile(yamlFilePath, cfg)
+	if err != nil {
+		return err
+	}
+
+	// Should override the values with environment variables
+	err = envconfig.Process("", cfg)
 	if err != nil {
 		return err
 	}
