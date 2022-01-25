@@ -85,7 +85,7 @@ func (ucase *TradeItems) buildTradeInventory(tInv *dto.TradeInventoryWrite) (*do
 			msg := core.NewErrorMessage(dto.TradeResourceNotFound, detail, http.StatusBadRequest)
 			return nil, 0, msg
 		}
-		tradePoints = tradePoints + (res.Item.Price * int32(res.Quantity))
+		tradePoints = tradePoints + (res.Item.Price * int32(item.Quantity))
 
 		tRes := &domain.TradeResource{
 			ItemID:   item.ResourceID,
