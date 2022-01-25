@@ -20,6 +20,7 @@ const (
 	TradeResourcePriceNotEquivalent core.ErrorTypeCode = "AGB-007"
 	TradeStatusIsInvalid            core.ErrorTypeCode = "AGB-008"
 	TradeResourceQuantityNotEnough  core.ErrorTypeCode = "AGB-009"
+	TradeCanOnlyBeCancelledBySender core.ErrorTypeCode = "AGB-010"
 )
 
 func ErrorDetailBuilder(field string, errorType string) *core.ErrorDetail {

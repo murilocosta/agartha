@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -42,4 +43,18 @@ func FormatTokenResponse(c *gin.Context, status int, token string, expire time.T
 
 func FormatUnauthorizedResponse(c *gin.Context, status int, message string) {
 	c.JSON(status, core.GetAuthError(message, status))
+}
+
+func GetSurvivorIdentity(c *gin.Context) (*auth.SurvivorIdentity, error) {
+	survivorKey, ok := c.Keys["survivorID"]
+	if !ok {
+		return nil, errors.New("malformed authentication token")
+	}
+
+	claims, ok := survivorKey.(*auth.SurvivorIdentity)
+	if !ok {
+		return nil, errors.New("corrupted authentication token")
+	}
+
+	return claims, nil
 }

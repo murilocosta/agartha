@@ -19,7 +19,13 @@ type TradeResourceWrite struct {
 
 type TradeRejectWrite struct {
 	TradeID    uint   `uri:"tradeId" binding:"required"`
-	Annotation string `json:"annotation"`
+	Annotation string `json:"annotation,omitempty"`
+}
+
+type TradeCancelWrite struct {
+	TradeID    uint `uri:"tradeId" binding:"required"`
+	SurvivorID uint
+	Annotation string `json:"annotation,omitempty"`
 }
 
 type TradeRead struct {
@@ -33,6 +39,7 @@ type TradeHistorySurvivorRead struct {
 }
 
 type TradeHistoryItemRead struct {
+	ItemIcon     string `json:"item_icon"`
 	ItemName     string `json:"item_name"`
 	ItemQuantity uint   `json:"item_quantity"`
 }

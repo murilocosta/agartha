@@ -177,7 +177,7 @@ CREATE TABLE trade_resources (
             ON UPDATE CASCADE
 );
 
-CREATE TYPE TRADE_STATUS AS ENUM ('Open', 'Accepted', 'Rejected'); 
+CREATE TYPE TRADE_STATUS AS ENUM ('Open', 'Accepted', 'Rejected', 'Cancelled'); 
 
 CREATE TABLE trades (
     id SERIAL,

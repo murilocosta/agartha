@@ -91,6 +91,7 @@ func main() {
 	trdUC := application.NewTradeItems(survRepo, tradeRepo)
 	trdAccUC := application.NewTradeItemsAccept(tradeRepo)
 	trdRejUC := application.NewTradeItemsReject(tradeRepo)
+	trdCancUC := application.NewTradeItemsCancel(tradeRepo)
 	trdHstUC := application.NewFetchSurvivorTradeHistory(tradeRepo, itemRepo)
 	survSgn := auth.NewSignUpSurvivor(credRepo, itemRepo)
 	survLgn := auth.NewLoginSurvivor(credRepo)
@@ -107,6 +108,7 @@ func main() {
 	tradeItems := transport.NewTradeItemsCtrl(trdUC)
 	tradeItemsAccept := transport.NewTradeItemsAcceptCtrl(trdAccUC)
 	tradeItemsReject := transport.NewTradeItemsRejectCtrl(trdRejUC)
+	tradeItemsCancel := transport.NewTradeItemsCancelCtrl(trdCancUC)
 	tradeItemsHistory := transport.NewFetchSurvivorTradeHistoryCtrl(trdHstUC)
 
 	// Initialize auth handlers
@@ -129,6 +131,7 @@ func main() {
 	handlersConfig.PostProtected("/api/trades", tradeItems)
 	handlersConfig.PostProtected("/api/trades/:tradeId/accept", tradeItemsAccept)
 	handlersConfig.PostProtected("/api/trades/:tradeId/reject", tradeItemsReject)
+	handlersConfig.PostProtected("/api/trades/:tradeId/cancel", tradeItemsCancel)
 
 	// Create the authentication middleware
 	middleware := infrastructure.NewAuthMiddleware(
@@ -137,10 +140,12 @@ func main() {
 		config.Auth.TokenTimeout,
 		config.Auth.RefreshTimeout,
 	)
+
 	authHandler, err := middleware.Init(
 		survivorLogin.HandlerFunc,
 		checkSurvivorPermission.HandlerFunc,
 	)
+
 	if err != nil {
 		log.Fatal(err)
 	}
