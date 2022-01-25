@@ -1,1 +1,1 @@
-web: bin/agartha -config /app/config/config.yml
+web: bin/agartha -config config/config.yml
