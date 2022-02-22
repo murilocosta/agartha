@@ -61,13 +61,26 @@ func NewSurvivorBuilder(itemRepo domain.ItemRepository) *survivorBuilder {
 }
 
 func (builder *survivorBuilder) BuildSurvivor(sw *SurvivorWrite) (*domain.Survivor, error) {
+	calculator := domain.NewInventoryPriceCalculator()
+
 	var resources []*domain.Resource
-	for _, invItem := range sw.Inventory {
-		resource, err := builder.buildItem(invItem)
+	for _, survRes := range sw.Inventory {
+		item, err := builder.findItem(survRes)
 		if err != nil {
 			return nil, err
 		}
-		resources = append(resources, resource)
+
+		calculator.AddItem(item, int32(survRes.Quantity))
+
+		resources = append(resources, &domain.Resource{
+			Item:     item,
+			Quantity: survRes.Quantity,
+		})
+	}
+
+	if err := calculator.ValidatePrice(); err != nil {
+		msg := core.NewErrorMessage(ItemNotFound, err.Error(), http.StatusBadRequest)
+		return nil, msg
 	}
 
 	surv := &domain.Survivor{
@@ -85,7 +98,7 @@ func (builder *survivorBuilder) BuildSurvivor(sw *SurvivorWrite) (*domain.Surviv
 	return surv, nil
 }
 
-func (builder *survivorBuilder) buildItem(survRes *SurvivorResource) (*domain.Resource, error) {
+func (builder *survivorBuilder) findItem(survRes *SurvivorResource) (*domain.Item, error) {
 	item, err := builder.itemRepo.FindByID(survRes.ItemID)
 
 	if err != nil {
@@ -94,10 +107,5 @@ func (builder *survivorBuilder) buildItem(survRes *SurvivorResource) (*domain.Re
 		return nil, msg
 	}
 
-	res := &domain.Resource{
-		Item:     item,
-		Quantity: survRes.Quantity,
-	}
-
-	return res, nil
+	return item, nil
 }
