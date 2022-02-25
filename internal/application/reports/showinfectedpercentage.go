@@ -20,6 +20,6 @@ func (ucase *ShowInfectedPercentage) Invoke() (*dto.InfectedPercentageReportRead
 	}
 
 	return &dto.InfectedPercentageReportRead{
-		InfectedPercentage: result.InfectedPercentage,
+		InfectedPercentage: result.Percentage,
 	}, nil
 }
