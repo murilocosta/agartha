@@ -108,6 +108,7 @@ func main() {
 	survLgn := auth.NewLoginSurvivor(credRepo)
 	showInfectPerc := reports.NewShowInfectedPercentage(reportRepo)
 	showNonInfectPerc := reports.NewShowNonInfectedPercentage(reportRepo)
+	showAvgResPerSurv := reports.NewShowAverageResourcesPerSurvivor(reportRepo)
 
 	// Initialize request handlers
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
@@ -125,6 +126,7 @@ func main() {
 	tradeItemsHistory := transport.NewFetchSurvivorTradeHistoryCtrl(trdHstUC)
 	showInfectedPercentage := transport.NewShowInfectedPercentageCtrl(showInfectPerc)
 	showNonInfectedPercentage := transport.NewShowNonInfectedPercentageCtrl(showNonInfectPerc)
+	showAverageResourcesPerSurvivor := transport.NewShowAverageResourcesPerSurvivorCtrl(showAvgResPerSurv)
 
 	// Initialize auth handlers
 	survivorSignUp := transport.NewSurvivorSignUpCtrl(survSgn)
@@ -149,6 +151,7 @@ func main() {
 	handlersConfig.PostProtected("/api/trades/:tradeId/cancel", tradeItemsCancel)
 	handlersConfig.Get("/api/reports/infected-survivors", showInfectedPercentage)
 	handlersConfig.Get("/api/reports/non-infected-survivors", showNonInfectedPercentage)
+	handlersConfig.Get("/api/reports/average-resources", showAverageResourcesPerSurvivor)
 
 	// Create the authentication middleware
 	middleware := infrastructure.NewAuthMiddleware(

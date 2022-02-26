@@ -3,7 +3,7 @@ package dto
 import "github.com/murilocosta/agartha/internal/domain"
 
 type ItemRead struct {
-	ID     uint              `json:"id"`
+	ID     uint              `json:"id,omitempty"`
 	Name   string            `json:"name"`
 	Icon   string            `json:"icon"`
 	Price  int32             `json:"price"`
