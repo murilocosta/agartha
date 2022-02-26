@@ -106,7 +106,8 @@ func main() {
 	trdHstUC := application.NewFetchSurvivorTradeHistory(tradeRepo, itemRepo)
 	survSgn := auth.NewSignUpSurvivor(credRepo, itemRepo)
 	survLgn := auth.NewLoginSurvivor(credRepo)
-	showInfPerc := reports.NewShowInfectedPercentage(reportRepo)
+	showInfectPerc := reports.NewShowInfectedPercentage(reportRepo)
+	showNonInfectPerc := reports.NewShowNonInfectedPercentage(reportRepo)
 
 	// Initialize request handlers
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
@@ -122,7 +123,8 @@ func main() {
 	tradeItemsReject := transport.NewTradeItemsRejectCtrl(trdRejUC)
 	tradeItemsCancel := transport.NewTradeItemsCancelCtrl(trdCancUC)
 	tradeItemsHistory := transport.NewFetchSurvivorTradeHistoryCtrl(trdHstUC)
-	showInfectedPercentage := transport.NewShowInfectedPercentageCtrl(showInfPerc)
+	showInfectedPercentage := transport.NewShowInfectedPercentageCtrl(showInfectPerc)
+	showNonInfectedPercentage := transport.NewShowNonInfectedPercentageCtrl(showNonInfectPerc)
 
 	// Initialize auth handlers
 	survivorSignUp := transport.NewSurvivorSignUpCtrl(survSgn)
@@ -146,6 +148,7 @@ func main() {
 	handlersConfig.PostProtected("/api/trades/:tradeId/reject", tradeItemsReject)
 	handlersConfig.PostProtected("/api/trades/:tradeId/cancel", tradeItemsCancel)
 	handlersConfig.Get("/api/reports/infected-survivors", showInfectedPercentage)
+	handlersConfig.Get("/api/reports/non-infected-survivors", showNonInfectedPercentage)
 
 	// Create the authentication middleware
 	middleware := infrastructure.NewAuthMiddleware(
