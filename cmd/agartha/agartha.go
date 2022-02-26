@@ -14,6 +14,7 @@ import (
 
 	"github.com/murilocosta/agartha/internal/application"
 	"github.com/murilocosta/agartha/internal/application/auth"
+	"github.com/murilocosta/agartha/internal/application/reports"
 	"github.com/murilocosta/agartha/internal/core"
 	"github.com/murilocosta/agartha/internal/domain"
 	"github.com/murilocosta/agartha/internal/infrastructure"
@@ -85,6 +86,7 @@ func main() {
 	invRepo := persistence.NewPostgresInventoryRepository(dbCli)
 	tradeRepo := persistence.NewPostgresTradeRepository(dbCli)
 	credRepo := persistence.NewPostgresCredentialsRepository(dbCli)
+	reportRepo := persistence.NewPostgresReportRepository(dbCli)
 
 	// Initialize domain services
 	invServ := domain.NewInventoryService(invRepo)
@@ -104,6 +106,7 @@ func main() {
 	trdHstUC := application.NewFetchSurvivorTradeHistory(tradeRepo, itemRepo)
 	survSgn := auth.NewSignUpSurvivor(credRepo, itemRepo)
 	survLgn := auth.NewLoginSurvivor(credRepo)
+	showInfPerc := reports.NewShowInfectedPercentage(reportRepo)
 
 	// Initialize request handlers
 	registerSurvivor := transport.NewRegisterSurvivorCtrl(regSurUC)
@@ -119,6 +122,7 @@ func main() {
 	tradeItemsReject := transport.NewTradeItemsRejectCtrl(trdRejUC)
 	tradeItemsCancel := transport.NewTradeItemsCancelCtrl(trdCancUC)
 	tradeItemsHistory := transport.NewFetchSurvivorTradeHistoryCtrl(trdHstUC)
+	showInfectedPercentage := transport.NewShowInfectedPercentageCtrl(showInfPerc)
 
 	// Initialize auth handlers
 	survivorSignUp := transport.NewSurvivorSignUpCtrl(survSgn)
@@ -141,6 +145,7 @@ func main() {
 	handlersConfig.PostProtected("/api/trades/:tradeId/accept", tradeItemsAccept)
 	handlersConfig.PostProtected("/api/trades/:tradeId/reject", tradeItemsReject)
 	handlersConfig.PostProtected("/api/trades/:tradeId/cancel", tradeItemsCancel)
+	handlersConfig.Get("/api/reports/infected-survivors", showInfectedPercentage)
 
 	// Create the authentication middleware
 	middleware := infrastructure.NewAuthMiddleware(
