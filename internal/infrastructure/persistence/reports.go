@@ -103,3 +103,40 @@ func (repo *postgresReportRepository) ShowAverageResourcesPerSurvivor() ([]*doma
 
 	return result, nil
 }
+
+func (repo *postgresReportRepository) ShowTotalResourceQuantityLost() ([]*domain.TotalResourceQuantityLost, error) {
+	sqlQuery := `
+		SELECT it.name, it.icon, it.price, it.rarity, SUM(res.quantity) AS item_quantity_lost
+		FROM items AS it
+		LEFT JOIN resources AS res ON res.item_id = it.id
+		LEFT JOIN inventories AS inv ON inv.id = res.inventory_id 
+		WHERE inv.disabled IS TRUE
+		GROUP BY 1, 2, 3, 4
+		ORDER BY it.price DESC;
+	`
+	rows, err := repo.db.Raw(sqlQuery).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result []*domain.TotalResourceQuantityLost
+
+	var itemQuantityLost int32
+	for rows.Next() {
+		item := domain.Item{}
+
+		err = rows.Scan(&item.Name, &item.Icon, &item.Price, &item.Rarity, &itemQuantityLost)
+		if err != nil {
+			return nil, err
+		}
+
+		resultItem := &domain.TotalResourceQuantityLost{
+			Item:             &item,
+			ItemQuantityLost: itemQuantityLost,
+		}
+		result = append(result, resultItem)
+	}
+
+	return result, nil
+}
