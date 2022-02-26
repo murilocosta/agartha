@@ -1,6 +1,15 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"errors"
+	"fmt"
+
+	"gorm.io/gorm"
+)
+
+const (
+	MaxInventoryPriceAllowed = 100
+)
 
 type Inventory struct {
 	gorm.Model
@@ -18,6 +27,32 @@ type InventoryRepository interface {
 	SaveTransfer(from *Inventory, to *Inventory) error
 
 	FindByOwnerID(ownerID uint) (*Inventory, error)
+}
+
+type InventoryPriceCalculator struct {
+	totalPrice int32
+}
+
+func NewInventoryPriceCalculator() *InventoryPriceCalculator {
+	return &InventoryPriceCalculator{totalPrice: 0}
+}
+
+func (c *InventoryPriceCalculator) AddItem(item *Item, quantity int32) {
+	c.totalPrice = c.totalPrice + (item.Price * quantity)
+}
+
+func (c *InventoryPriceCalculator) ValidatePrice() error {
+	if c.totalPrice > MaxInventoryPriceAllowed {
+		msg := fmt.Sprintf(
+			"inventory has exceeded the maximum size allowed: %d/%d",
+			c.totalPrice,
+			MaxInventoryPriceAllowed,
+		)
+
+		return errors.New(msg)
+	}
+
+	return nil
 }
 
 type InventoryService struct {

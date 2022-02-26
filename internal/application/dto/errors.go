@@ -16,6 +16,7 @@ const (
 	SurvivorCannotBeFlagged         core.ErrorTypeCode = "AGB-003"
 	SurvivorAlreadyFlagged          core.ErrorTypeCode = "AGB-004"
 	SurvivorInventoryTransferFailed core.ErrorTypeCode = "AGB-005"
+	SurvivorInventoryPriceExceeded  core.ErrorTypeCode = "AGB-011"
 	TradeResourceNotFound           core.ErrorTypeCode = "AGB-006"
 	TradeResourcePriceNotEquivalent core.ErrorTypeCode = "AGB-007"
 	TradeStatusIsInvalid            core.ErrorTypeCode = "AGB-008"
